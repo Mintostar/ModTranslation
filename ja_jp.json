@@ -1,0 +1,14 @@
+{
+    "advancement.create.andesite_alloy": "頑丈な岩",
+    "advancement.create.andesite_alloy.desc": "いくつかのAndesite合金を入手してください。これは、最も重要なリソースを作成します",
+    "advancement.create.andesite_casing": "アンサイト時代",
+    "advancement.create.andesite_casing.desc": "剥がれた木材にアンデサイト合金を塗り、機械の基本的なケーシングを作成します",
+    "advancement.create.anvil_plough": "鍛冶屋の大砲",
+    "advancement.create.anvil_plough.desc": "機械式プラウでアンビルを起動します",
+    "create.tooltip.keyCtrl": "Ctrl",
+    "create.tooltip.keyShift": "シフト",
+    "item.create.zinc_ingot": "亜鉛インゴット",
+    "item.create.zinc_nugget": "亜鉛ナゲット",
+    "itemGroup.create.base": "作成する",
+    "itemGroup.create.palettes": "作成のビルディングブロックを作成します"
+}

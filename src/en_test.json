@@ -1,0 +1,16 @@
+{
+  "advancement.create.andesite_alloy": "Sturdier Rocks",
+  "advancement.create.andesite_alloy.desc": "Obtain some Andesite Alloy, Create's most important resource",
+  "advancement.create.andesite_casing": "The Andesite Age",
+  "advancement.create.andesite_casing.desc": "Apply Andesite Alloy to stripped wood, creating a basic casing for your machines",
+  "advancement.create.anvil_plough": "Blacksmith Artillery",
+  "advancement.create.anvil_plough.desc": "Launch an Anvil with Mechanical Ploughs",
+  "create.tooltip.keyCtrl": "Ctrl",
+  "create.tooltip.keyShift": "Shift",
+  "item.create.zinc_ingot": "Zinc Ingot",
+  "item.create.zinc_nugget": "Zinc Nugget",
+  "itemGroup.create.base": "Create",
+  "itemGroup.create.palettes": "Create's Building Blocks"
+}
+
+
