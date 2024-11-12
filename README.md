@@ -24,26 +24,31 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
 
 システム環境に直接パッケージをインストールするのではなく、Pythonの仮想環境を作成してその中でパッケージを管理することをおすすめします。
 
-1. **仮想環境を作成する**：
 
-   ```bash
-    source ~/Boxes/Works/translation2/ModTranslation/venv/bin/activate
-   ```
-2. **仮想環境をアクティベートする**：
+### Linux / macOS  
+<ol>
+    <li><b>仮想環境を作成する：</b></li>
+    <pre><code>python3 -m venv ~/Boxes/Works/translation2/ModTranslation/venv</code></pre>
+    <li><b>仮想環境をアクティベートする：</b></li>
+    <pre><code>source ~/Boxes/Works/translation2/ModTranslation/venv/bin/activate</code></pre>
+    <li><b>必要なパッケージをインストールする：</b></li>
+    <pre><code>pip install googletrans==4.0.0-rc1</code></pre>
+    <li><b>仮想環境を終了する：</b></li>
+    <pre><code>deactivate</code></pre>
+  </ol>
+### Windows
+  <ol>
+    <li><b>仮想環境を作成する：</b></li>
+    <pre><code>python -m venv C:\path\to\project\venv</code></pre>
+    <li><b>仮想環境をアクティベートする：</b></li>
+    <pre><code>.\venv\Scripts\activate</code></pre>
+    <li><b>必要なパッケージをインストールする：</b></li>
+    <pre><code>pip install googletrans==4.0.0-rc1</code></pre>
+    <li><b>仮想環境を終了する：</b></li>
+    <pre><code>deactivate</code></pre>
+  </ol>
 
-   ```bash
-   python3 -m venv ~/Boxes/Works/translation2/ModTranslation/venv
-   ```
-3. **必要なパッケージをインストールする**：
 
-   ```bash
-   pip install googletrans==4.0.0-rc1
-   ```
-4. **仮想環境を終了する**：
-
-   ```bash
-   deactivate
-   ```
 
 
 
