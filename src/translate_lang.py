@@ -1,4 +1,5 @@
 import json
+import os
 import googletrans
 from googletrans import Translator
 
@@ -39,7 +40,14 @@ def merge_key_value(split_data):
 
 # 結果を新しいJSONファイルに保存
 def save_to_json(merged_data, output_file):
-    with open(output_file, 'w', encoding='utf-8') as file:
+    # outputディレクトリが存在しない場合は作成
+    if not os.path.exists('output'):
+        os.makedirs('output')
+    
+    # ファイルパスをoutputディレクトリに設定
+    output_path = os.path.join('output', output_file)
+    
+    with open(output_path, 'w', encoding='utf-8') as file:
         json.dump(merged_data, file, ensure_ascii=False, indent=4)
 
 # メインの処理
