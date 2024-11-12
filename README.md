@@ -24,7 +24,6 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
 
 システム環境に直接パッケージをインストールするのではなく、Pythonの仮想環境を作成してその中でパッケージを管理することをおすすめします。
 
-
 ### Linux / macOS  
 <ol>
     <li><b>仮想環境を作成する：</b></li>
@@ -35,9 +34,10 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
     <pre><code>pip install googletrans==4.0.0-rc1</code></pre>
     <li><b>仮想環境を終了する：</b></li>
     <pre><code>deactivate</code></pre>
-  </ol>
+</ol>
+
 ### Windows
-  <ol>
+<ol>
     <li><b>仮想環境を作成する：</b></li>
     <pre><code>python -m venv C:\path\to\project\venv</code></pre>
     <li><b>仮想環境をアクティベートする：</b></li>
@@ -46,7 +46,7 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
     <pre><code>pip install googletrans==4.0.0-rc1</code></pre>
     <li><b>仮想環境を終了する：</b></li>
     <pre><code>deactivate</code></pre>
-  </ol>
+</ol>
 
 
 
