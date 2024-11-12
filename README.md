@@ -14,16 +14,38 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
 
 ## 使い方
 
-### 必要なライブラリ
+## 必要なライブラリ
+
+このツールの実行には、以下のライブラリが必要です：
 
 - `googletrans==4.0.0-rc1` (Google翻訳APIを利用するため)
-- `json` (標準ライブラリ)
 
-以下のコマンドで必要なライブラリをインストールできます：
+### 仮想環境の設定手順
 
-```bash
-pip install googletrans==4.0.0-rc1
-```
+システム環境に直接パッケージをインストールするのではなく、Pythonの仮想環境を作成してその中でパッケージを管理することをおすすめします。
+
+1. **仮想環境を作成する**：
+
+   ```bash
+    source ~/Boxes/Works/translation2/ModTranslation/venv/bin/activate
+   ```
+2. **仮想環境をアクティベートする**：
+
+   ```bash
+   python3 -m venv ~/Boxes/Works/translation2/ModTranslation/venv
+   ```
+3. **必要なパッケージをインストールする**：
+
+   ```bash
+   pip install googletrans==4.0.0-rc1
+   ```
+4. **仮想環境を終了する**：
+
+   ```bash
+   deactivate
+   ```
+
+
 
 ### 実行方法
 
