@@ -27,9 +27,9 @@ MinecraftのMODファイルに含まれるテキストを日本語化するた�
 ### Linux / macOS  
 <ol>
     <li><b>仮想環境を作成する：</b></li>
-    <pre><code>python3 -m venv ~/Boxes/Works/translation2/ModTranslation/venv</code></pre>
+    <pre><code>python3 -m venv ./ModTranslation/venv</code></pre>
     <li><b>仮想環境をアクティベートする：</b></li>
-    <pre><code>source ~/Boxes/Works/translation2/ModTranslation/venv/bin/activate</code></pre>
+    <pre><code>source ./ModTranslation/venv/bin/activate</code></pre>
     <li><b>必要なパッケージをインストールする：</b></li>
     <pre><code>pip install googletrans==4.0.0-rc1</code></pre>
     <li><b>仮想環境を終了する：</b></li>
