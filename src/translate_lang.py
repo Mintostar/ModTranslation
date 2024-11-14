@@ -3,6 +3,7 @@ import os
 import googletrans
 from googletrans import Translator
 import time
+from tqdm import tqdm  # tqdmライブラリをインポート
 
 # Google翻訳のインスタンス作成
 translator = Translator()
@@ -42,11 +43,15 @@ def split_key_value(json_data):
 def merge_key_value(split_data):
     merged_data = {}
     errors = []  # エラーメッセージを保持するリスト
-    for key, value in split_data.items():
+    total_items = len(split_data)
+    
+    # tqdmで進捗バーを表示
+    for idx, (key, value) in enumerate(tqdm(split_data.items(), desc="翻訳中", total=total_items, ncols=100)):
         translated_value = translate_text(value)
         if translated_value.startswith("翻訳失敗"):  # 翻訳に失敗した場合
             errors.append(f"キー: {key}, 値: {value}")
         merged_data[key] = translated_value
+    
     return merged_data, errors
 
 # 結果を新しいJSONファイルに保存
