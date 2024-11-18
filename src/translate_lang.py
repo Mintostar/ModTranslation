@@ -3,15 +3,16 @@ import os
 import googletrans
 from googletrans import Translator
 import time
-from datetime import datetime  # 日時を扱うライブラリをインポート
-from tqdm import tqdm  # tqdmライブラリをインポート
+from tqdm import tqdm
+from datetime import datetime  # タイムスタンプ用
 
 # Google翻訳のインスタンス作成
 translator = Translator()
 
-# 現在のタイムスタンプを取得する関数
-def get_timestamp():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# ログディレクトリのパス設定
+LOG_DIR = "logs"
+TRANSLATION_LOG_DIR = os.path.join(LOG_DIR, "translation_logs")
+ERROR_LOG_DIR = os.path.join(LOG_DIR, "error_logs")
 
 # JSONファイルを読み込む関数
 def load_json(file_path):
@@ -20,65 +21,16 @@ def load_json(file_path):
 
 # 翻訳対象部分を翻訳し、そのまま返す
 def translate_text(text, retries=3):
-    # 余分なエスケープやクオーテーションを除去
     cleaned_text = text.strip('"').strip(',')
-
-    # 翻訳をリトライ
     for attempt in range(retries):
         try:
             translated = translator.translate(cleaned_text, src='en', dest='ja')
-            return translated.text  # 成功したら翻訳結果を返す
+            return translated.text
         except googletrans.TranslatorError as e:
-            print(f"翻訳エラー: {e}, 再試行中... ({attempt + 1}/{retries})")
-            time.sleep(2)  # 再試行前に少し待機
-        except Exception as e:
-            print(f"予期しないエラー: {e}")
+            time.sleep(2)
+        except Exception:
             break
-    # すべてのリトライで失敗した場合はエラーメッセージを返す
     return f"翻訳失敗: {text}"
-
-# 翻訳後のデータを結合
-def merge_key_value(split_data):
-    merged_data = {}
-    errors = []  # エラーメッセージを保持するリスト
-    logs = []  # 翻訳状況ログを保持するリスト
-    total_items = len(split_data)
-
-    # tqdmで進捗バーを表示
-    for idx, (key, value) in enumerate(tqdm(split_data.items(), desc="翻訳中", total=total_items, ncols=100)):
-        translated_value = translate_text(value)
-        timestamp = get_timestamp()  # タイムスタンプを取得
-        if translated_value.startswith("翻訳失敗"):  # 翻訳に失敗した場合
-            errors.append(f"[{timestamp}] キー: {key}, 値: {value}")
-        merged_data[key] = translated_value
-        logs.append(f"[{timestamp}] [{idx + 1}/{total_items}] {key}: {value} -> {translated_value}")
-
-    # ログファイルを保存
-    save_log(logs, "translation_log.txt")
-    save_log(errors, "error_log.txt")
-
-    return merged_data, errors
-
-# ログを保存する関数
-def save_log(log_data, log_file):
-    if not os.path.exists('logs'):
-        os.makedirs('logs')  # logsディレクトリが存在しない場合は作成
-    log_path = os.path.join('logs', log_file)
-    with open(log_path, 'w', encoding='utf-8') as file:
-        file.write(f"ログ作成日時: {get_timestamp()}\n")  # ログファイル冒頭にタイムスタンプを追加
-        file.write('\n'.join(log_data))
-
-# 結果を新しいJSONファイルに保存
-def save_to_json(merged_data, output_file):
-    # outputディレクトリが存在しない場合は作成
-    if not os.path.exists('output'):
-        os.makedirs('output')
-
-    # ファイルパスをoutputディレクトリに設定
-    output_path = os.path.join('output', output_file)
-
-    with open(output_path, 'w', encoding='utf-8') as file:
-        json.dump(merged_data, file, ensure_ascii=False, indent=4)
 
 # JSONのキーと値を分割
 def split_key_value(json_data):
@@ -87,40 +39,56 @@ def split_key_value(json_data):
         split_data[key] = value
     return split_data
 
-# エラーログを表示
-def display_errors(errors):
-    if errors:
-        print("\n翻訳に失敗した項目:")
+# 翻訳後のデータを結合
+def merge_key_value(split_data, translation_log_file, error_log_file):
+    merged_data = {}
+    errors = []
+    total_items = len(split_data)
+    for idx, (key, value) in enumerate(tqdm(split_data.items(), desc="翻訳中", total=total_items, ncols=100)):
+        translated_value = translate_text(value)
+        if translated_value.startswith("翻訳失敗"):
+            errors.append(f"キー: {key}, 値: {value}")
+        else:
+            with open(translation_log_file, 'a', encoding='utf-8') as log:
+                log.write(f"{datetime.now()}: キー: {key}, 値: {value} -> {translated_value}\n")
+        merged_data[key] = translated_value
+    with open(error_log_file, 'a', encoding='utf-8') as log:
         for error in errors:
-            print(error)
-    else:
-        print("すべての翻訳が成功しました。")
+            log.write(f"{datetime.now()}: {error}\n")
+    return merged_data, errors
+
+# 結果を新しいJSONファイルに保存
+def save_to_json(merged_data, output_file):
+    if not os.path.exists('output'):
+        os.makedirs('output')
+    output_path = os.path.join('output', output_file)
+    with open(output_path, 'w', encoding='utf-8') as file:
+        json.dump(merged_data, file, ensure_ascii=False, indent=4)
+
+# ログディレクトリのセットアップ
+def setup_log_directories():
+    os.makedirs(TRANSLATION_LOG_DIR, exist_ok=True)
+    os.makedirs(ERROR_LOG_DIR, exist_ok=True)
 
 # メインの処理
 def main():
-    print(f"翻訳開始: {get_timestamp()}")  # 翻訳開始時刻を表示
     input_file = input("翻訳元のファイルのパスを指定してください：")
     output_file = "ja_jp.json"
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    translation_log_file = os.path.join(TRANSLATION_LOG_DIR, f"translation_{timestamp}.log")
+    error_log_file = os.path.join(ERROR_LOG_DIR, f"error_{timestamp}.log")
 
-    # JSONファイルを読み込む
+    setup_log_directories()
     json_data = load_json(input_file)
-
-    # JSONを分割
     split_data = split_key_value(json_data)
-
-    # 翻訳後のJSONを生成
-    merged_data, errors = merge_key_value(split_data)
-
-    # 結果をja_jp.jsonに保存
+    merged_data, errors = merge_key_value(split_data, translation_log_file, error_log_file)
     save_to_json(merged_data, output_file)
     print(f"翻訳が完了しました。{output_file}に保存されました。")
+    if errors:
+        print(f"エラーログが {error_log_file} に保存されました。")
+    else:
+        os.remove(error_log_file)
+        print("すべての翻訳が成功しました。エラーログは削除されました。")
 
-    # 翻訳終了時刻を表示
-    print(f"翻訳終了: {get_timestamp()}")
-
-    # エラーメッセージを表示
-    display_errors(errors)
-
-# プログラムの実行
 if __name__ == "__main__":
     main()
