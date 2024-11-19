@@ -14,24 +14,60 @@ def load_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
+# JSON形式と構造の検証
+def is_valid_json(file_path):
+    """
+    ファイルが有効なJSON形式かつ構造が正しいかを判定する。
+
+    Args:
+        file_path (str): チェックするファイルのパス。
+
+    Returns:
+        bool: 有効な場合はTrue、無効な場合はFalse。
+    """
+    if not os.path.exists(file_path):
+        print(f"ファイルが見つかりません: {file_path}")
+        return False
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        # JSONデータが辞書形式またはリスト形式であることを確認
+        if isinstance(data, dict) and bool(data):  # 空の辞書ではない
+            return True
+        elif isinstance(data, list) and bool(data):  # 空のリストではない
+            return True
+        else:
+            print(f"JSON形式ですが、構造が無効です: {file_path}")
+            return False
+    except json.JSONDecodeError as e:
+        print(f"JSON形式ではありません: {e}")
+        return False
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        return False
+
 # 翻訳対象部分を翻訳し、そのまま返す
 def translate_text(text, retries=3):
-    # 余分なエスケープやクオーテーションを除去
-    cleaned_text = text.strip('"').strip(',')
+    # 空文字列や短すぎる値をスキップ
+    if not text or len(text.strip()) <= 3:
+        return text, None  # 翻訳せずにそのまま返す
 
-    # 翻訳をリトライ
+    # 残りの処理はそのまま
+    cleaned_text = text.strip('"').strip(',')
     for attempt in range(retries):
         try:
             translated = translator.translate(cleaned_text, src='en', dest='ja')
-            return translated.text, None  # 成功したら翻訳結果とエラーメッセージなしを返す
+            return translated.text, None
         except googletrans.TranslatorError as e:
             print(f"翻訳エラー: {e}, 再試行中... ({attempt + 1}/{retries})")
-            time.sleep(2)  # 再試行前に少し待機
+            time.sleep(2)
         except Exception as e:
             print(f"予期しないエラー: {e}")
             break
-    # すべてのリトライで失敗した場合はエラーメッセージを返す
     return None, f"翻訳失敗: {text}"
+
 
 # JSONのキーと値を分割し、翻訳部分だけを処理
 def split_key_value(json_data):
@@ -44,7 +80,10 @@ def split_key_value(json_data):
 def merge_key_value(split_data):
     merged_data = {}
     errors = []  # エラーメッセージを保持するリスト
-    success_logs = []  # 成功したログを保持するリスト
+    success_logs = {
+        "success": [],
+        "failure": []
+    }  # 成功したログを保持するリスト
     total_items = len(split_data)
 
     # ログ用のディレクトリがなければ作成
@@ -60,25 +99,24 @@ def merge_key_value(split_data):
     # tqdmで進捗バーを表示
     for idx, (key, value) in enumerate(tqdm(split_data.items(), desc="翻訳中", total=total_items, ncols=100)):
         translated_value, error_message = translate_text(value)
+        timestamp_now = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # 翻訳成功
         if error_message is None:
-            success_logs.append({
-                "timestamp": timestamp,
+            success_logs["success"].append({
+                "timestamp": timestamp_now,
                 "key": key,
                 "original_text": value,
                 "translated_text": translated_value,
-                "status": "success"
             })
             merged_data[key] = translated_value
         else:
             # 翻訳失敗
-            errors.append({
-                "timestamp": timestamp,
+            errors["failure"].append({
+                "timestamp": timestamp_now,
                 "key": key,
                 "original_text": value,
                 "error_message": error_message,
-                "status": "error"
             })
 
     # 成功ログをファイルに保存
@@ -118,6 +156,11 @@ def display_errors(errors, error_log_path):
 def main():
     input_file = input("翻訳元のファイルのパスを指定してください：")
     output_file = "ja_jp.json"
+
+    # JSON形式と構造を検証
+    if not is_valid_json(input_file):
+        print("無効なJSONファイルです。処理を終了します。")
+        return
 
     # JSONファイルを読み込む
     json_data = load_json(input_file)
