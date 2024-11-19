@@ -5,6 +5,7 @@ from googletrans import Translator
 import time
 from tqdm import tqdm
 from datetime import datetime
+import readline  # 追加: readlineモジュールをインポート
 
 # Google翻訳のインスタンス作成
 translator = Translator()
@@ -112,7 +113,7 @@ def merge_key_value(split_data):
             merged_data[key] = translated_value
         else:
             # 翻訳失敗
-            errors["failure"].append({
+            errors.append({
                 "timestamp": timestamp_now,
                 "key": key,
                 "original_text": value,
@@ -152,9 +153,28 @@ def display_errors(errors, error_log_path):
     else:
         print("すべての翻訳が成功しました。")
 
+# ファイルパスの補完機能を追加する関数
+def autocomplete_file_path(prompt, base_dir='data'):
+    """
+    data/ディレクトリ以下のファイルとサブディレクトリの補完を提供する
+    """
+    def completer(text, state):
+        # base_dir（デフォルトはdata）以下のファイルを補完候補にする
+        directory = os.path.join(base_dir, '')  # base_dirの絶対パスを取得
+        file_list = []
+
+        if os.path.exists(directory):
+            file_list = [x for x in os.listdir(directory) if x.startswith(text)]
+
+        return [x for x in file_list][state]
+
+    readline.set_completer(completer)
+    readline.parse_and_bind('tab: complete')
+    return input(prompt)
+
 # メインの処理
 def main():
-    input_file = input("翻訳元のファイルのパスを指定してください：")
+    input_file = autocomplete_file_path("翻訳元のファイルのパスを指定してください（data/以下のファイル）：")  # 補完機能を呼び出し
     output_file = "ja_jp.json"
 
     # JSON形式と構造を検証
