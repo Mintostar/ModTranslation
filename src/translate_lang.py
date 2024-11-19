@@ -14,6 +14,40 @@ def load_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
+# JSON形式と構造の検証
+def is_valid_json(file_path):
+    """
+    ファイルが有効なJSON形式かつ構造が正しいかを判定する。
+
+    Args:
+        file_path (str): チェックするファイルのパス。
+
+    Returns:
+        bool: 有効な場合はTrue、無効な場合はFalse。
+    """
+    if not os.path.exists(file_path):
+        print(f"ファイルが見つかりません: {file_path}")
+        return False
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        # JSONデータが辞書形式またはリスト形式であることを確認
+        if isinstance(data, dict) and bool(data):  # 空の辞書ではない
+            return True
+        elif isinstance(data, list) and bool(data):  # 空のリストではない
+            return True
+        else:
+            print(f"JSON形式ですが、構造が無効です: {file_path}")
+            return False
+    except json.JSONDecodeError as e:
+        print(f"JSON形式ではありません: {e}")
+        return False
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        return False
+
 # 翻訳対象部分を翻訳し、そのまま返す
 def translate_text(text, retries=3):
     # 余分なエスケープやクオーテーションを除去
@@ -118,6 +152,11 @@ def display_errors(errors, error_log_path):
 def main():
     input_file = input("翻訳元のファイルのパスを指定してください：")
     output_file = "ja_jp.json"
+
+    # JSON形式と構造を検証
+    if not is_valid_json(input_file):
+        print("無効なJSONファイルです。処理を終了します。")
+        return
 
     # JSONファイルを読み込む
     json_data = load_json(input_file)
