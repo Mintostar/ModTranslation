@@ -50,22 +50,24 @@ def is_valid_json(file_path):
 
 # 翻訳対象部分を翻訳し、そのまま返す
 def translate_text(text, retries=3):
-    # 余分なエスケープやクオーテーションを除去
-    cleaned_text = text.strip('"').strip(',')
+    # 空文字列や短すぎる値をスキップ
+    if not text or len(text.strip()) <= 3:
+        return text, None  # 翻訳せずにそのまま返す
 
-    # 翻訳をリトライ
+    # 残りの処理はそのまま
+    cleaned_text = text.strip('"').strip(',')
     for attempt in range(retries):
         try:
             translated = translator.translate(cleaned_text, src='en', dest='ja')
-            return translated.text, None  # 成功したら翻訳結果とエラーメッセージなしを返す
+            return translated.text, None
         except googletrans.TranslatorError as e:
             print(f"翻訳エラー: {e}, 再試行中... ({attempt + 1}/{retries})")
-            time.sleep(2)  # 再試行前に少し待機
+            time.sleep(2)
         except Exception as e:
             print(f"予期しないエラー: {e}")
             break
-    # すべてのリトライで失敗した場合はエラーメッセージを返す
     return None, f"翻訳失敗: {text}"
+
 
 # JSONのキーと値を分割し、翻訳部分だけを処理
 def split_key_value(json_data):
