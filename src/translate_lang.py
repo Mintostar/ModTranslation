@@ -80,7 +80,10 @@ def split_key_value(json_data):
 def merge_key_value(split_data):
     merged_data = {}
     errors = []  # エラーメッセージを保持するリスト
-    success_logs = []  # 成功したログを保持するリスト
+    success_logs = {
+        "success": [],
+        "failure": []
+    }  # 成功したログを保持するリスト
     total_items = len(split_data)
 
     # ログ用のディレクトリがなければ作成
@@ -96,25 +99,24 @@ def merge_key_value(split_data):
     # tqdmで進捗バーを表示
     for idx, (key, value) in enumerate(tqdm(split_data.items(), desc="翻訳中", total=total_items, ncols=100)):
         translated_value, error_message = translate_text(value)
+        timestamp_now = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # 翻訳成功
         if error_message is None:
-            success_logs.append({
-                "timestamp": timestamp,
+            success_logs["success"].append({
+                "timestamp": timestamp_now,
                 "key": key,
                 "original_text": value,
                 "translated_text": translated_value,
-                "status": "success"
             })
             merged_data[key] = translated_value
         else:
             # 翻訳失敗
-            errors.append({
-                "timestamp": timestamp,
+            errors["failure"].append({
+                "timestamp": timestamp_now,
                 "key": key,
                 "original_text": value,
                 "error_message": error_message,
-                "status": "error"
             })
 
     # 成功ログをファイルに保存
